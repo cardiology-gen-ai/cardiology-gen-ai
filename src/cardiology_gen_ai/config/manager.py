@@ -1,0 +1,47 @@
+import json
+import os
+import re
+from typing import Tuple, Any, Dict
+
+
+class ConfigManager:
+    def __init__(self,
+                 config_path: str = os.getenv("CONFIG_PATH"),
+                 app_config_path: str = os.getenv("APP_CONFIG_PATH"),
+                 app_id: str = "cardiology_protocols"):
+        self._config_path = config_path
+        self._app_config_path = app_config_path
+        self._app_id = app_id
+        self._config, self._general_config = self._load_config()
+        self._app_config = self._get_app_config()
+
+    def _load_config(self) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        try:
+            with open(self._config_path, "r") as config_file:
+                raw_config_json = config_file.read()
+
+            with open(self._app_config_path, "r") as app_config_file:
+                raw_app_config_json = app_config_file.read()
+
+                def replace_env_var(match):
+                    var_name = match.group(1)
+                    return os.environ.get(var_name, f"<MISSING:{var_name}>")
+
+                interpolated_json = re.sub(r"\$\{(\w+)\}", replace_env_var, raw_config_json)
+                config_json = json.loads(interpolated_json)
+                interpolated_app_json = re.sub(r"\$\{(\w+)\}", replace_env_var, raw_app_config_json)
+                app_config_json = json.loads(interpolated_app_json)
+                return config_json, app_config_json
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Configuration file not found at {self._config_path} or {self._app_config_path}")
+        except json.JSONDecodeError:
+            raise ValueError(
+                f"Invalid JSON format in configuration file at {self._config_path} or {self._app_config_path}")
+
+    def _get_app_config(self) -> Dict[str, Any]:
+        general_config = self._general_config.get(self._app_id)
+        config = self._config.get(self._app_id)
+        if not (general_config and config):
+            raise ValueError(f"No configuration found for application: {self._app_id}")
+        app_config = config | general_config
+        return app_config

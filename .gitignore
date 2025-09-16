@@ -1,0 +1,12 @@
+index/
+/index/
+qdrant_storage/
+
+.DS_Store
+.DS_Store?
+
+.env
+venv/
+.venv/
+/CardiologyGenAI_Coordo.egg-info/
+/build/
