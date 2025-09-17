@@ -57,6 +57,7 @@ class IndexingConfig(BaseModel):
     name: str
     description: str
     # TODO: change afterwards [check how to handle .env variables in this repo]
+    # folder: pathlib.Path = pathlib.Path(os.getenv("INDEX_ROOT", pathlib.Path(__file__).parent.parent.parent / "index"))
     folder: pathlib.Path = pathlib.Path(os.getenv("INDEX_ROOT"))
     type: IndexTypeNames
     distance: DistanceTypeNames
