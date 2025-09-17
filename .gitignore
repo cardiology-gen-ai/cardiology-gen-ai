@@ -10,3 +10,8 @@ venv/
 .venv/
 /CardiologyGenAI_Coordo.egg-info/
 /build/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
