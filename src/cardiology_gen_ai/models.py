@@ -5,7 +5,6 @@ from enum import Enum
 from typing import Dict, Any
 from pydantic import BaseModel, ConfigDict
 
-import torch
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_qdrant import QdrantVectorStore, FastEmbedSparse, RetrievalMode
@@ -40,6 +39,7 @@ class EmbeddingConfig(BaseModel):
         OSError
             If the Hugging Face model/config cannot be resolved locally or downloaded.
         """
+        import torch
         kwargs = config_dict["kwargs"]
         if not isinstance(kwargs, dict):
             kwargs = dict()
