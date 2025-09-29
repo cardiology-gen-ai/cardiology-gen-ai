@@ -124,10 +124,10 @@ nitpick_ignore = [
 html_theme = 'sphinx_book_theme'  # "furo"  # TODO: change if needed
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", {}),
-    "pydantic": ("https://docs.pydantic.dev/latest/", {}),
-    "langchain": ("https://python.langchain.com/api_reference/", {}),
-    "transformers": ("https://huggingface.co/transformers/v2.11.0/", {}),
+    "python": ("https://docs.python.org/3", None),
+    "pydantic": ("https://docs.pydantic.dev/latest/", None),
+    "langchain": ("https://python.langchain.com/api_reference/", None),
+    "transformers": ("https://huggingface.co/transformers/v2.11.0/", None),
 }
 
 extlinks = {
