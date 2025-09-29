@@ -42,6 +42,7 @@ def find_repo_root(start: Path) -> Path:
     return start.parent.parent
 
 REPO_ROOT = find_repo_root(HERE)
+sys.path.insert(0, str(REPO_ROOT / "src"))
 
 # Carica il .env reale
 if load_dotenv:
@@ -144,5 +145,3 @@ templates_path = ['_templates']
 exclude_patterns = ['.DS_Store']
 
 html_static_path = ['_static']
-
-sys.path.insert(0, str(REPO_ROOT / "src"))
