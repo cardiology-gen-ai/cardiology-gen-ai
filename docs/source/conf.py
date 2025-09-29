@@ -144,4 +144,5 @@ autodoc_mock_imports = ["torch", "langchain_huggingface", "langchain_community",
 templates_path = ['_templates']
 exclude_patterns = ['.DS_Store']
 
-html_static_path = ['_static']
+STATIC_DIR = Path(__file__).parent / "_static"
+html_static_path = ["_static"] if STATIC_DIR.exists() else []
