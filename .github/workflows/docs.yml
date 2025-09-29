@@ -33,13 +33,13 @@ jobs:
           pip install sphinx sphinx-book-theme sphinx-autodoc-typehints
 
       - name: Generate API stubs
-        run: sphinx-apidoc -o docs/api src/cardiology_gen_ai --force --module-first
+        run: sphinx-apidoc -o docs/source/api src/cardiology_gen_ai --force --module-first
 
       - name: Build Sphinx HTML
         env:
           SPHINX_BUILD: "1"
         run: |
-          test -d docs || (echo "Missing docs/ directory" && exit 2)
+          test -d docs/source/conf.py || (echo "Missing docs/ directory" && exit 2)
           sphinx-build -b html docs docs/build/html
           touch docs/build/html/.nojekyll
 
