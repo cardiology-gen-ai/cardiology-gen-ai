@@ -2,12 +2,12 @@ import os
 import pathlib
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Dict, Any
-from pydantic import BaseModel, ConfigDict
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, ConfigDict, Field
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_qdrant import QdrantVectorStore, FastEmbedSparse, RetrievalMode
+from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from transformers import AutoConfig
 
@@ -161,9 +161,17 @@ class Vectorstore(BaseModel, ABC):
 class QdrantVectorstore(Vectorstore):
     """Vector store adapter backed by Qdrant."""
     # TODO: maybe should be changed
-    url: str = os.getenv("QDRANT_URL") #: str : Qdrant vectorstore endpoint URL (defaults to ``os.getenv("QDRANT_URL")``).
-    client: QdrantClient = QdrantClient(url) #: :qdrant:`QdrantClient <qdrant_client.qdrant_client>` : Low-level Qdrant client bound to ``url``.
+    url: Optional[str] = Field(default_factory=lambda: os.getenv("QDRANT_URL")) #: str : Qdrant vectorstore endpoint URL (defaults to ``os.getenv("QDRANT_URL")``).
+    client: QdrantClient = None #: :qdrant:`QdrantClient <qdrant_client.qdrant_client>` : Low-level Qdrant client bound to ``url``.
     vectorstore: QdrantVectorStore = None #:  :langchain:`QdrantVectorStore <qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html#langchain_qdrant.qdrant.QdrantVectorStore>` : LangChain Qdrant vector store instance when loaded.
+
+    def _get_client(self):
+        if self.client is None:
+            from qdrant_client import QdrantClient
+            if not self.url:
+                raise RuntimeError("QDRANT_URL is not set")
+            self.client = QdrantClient(self.url)
+        return self.client
 
     def vectorstore_exists(self) -> bool:
         """
@@ -174,7 +182,8 @@ class QdrantVectorstore(Vectorstore):
         bool
             ``True`` if the collection exists, ``False`` otherwise.
         """
-        return any(collection.name == self.config.name for collection in self.client.get_collections().collections)
+        client = self._get_client()
+        return any(collection.name == self.config.name for collection in client.get_collections().collections)
 
     def load_vectorstore(self, embeddings_model: EmbeddingConfig, retrieval_mode: str) -> QdrantVectorStore:
         """
@@ -192,6 +201,7 @@ class QdrantVectorstore(Vectorstore):
         :langchain:`QdrantVectorStore <qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html#langchain_qdrant.qdrant.QdrantVectorStore>`
             Loaded vector store instance configured with dense and sparse embeddings.
         """
+        from langchain_qdrant import FastEmbedSparse, RetrievalMode
         retrieval_mode_dict = \
             {"dense": RetrievalMode.DENSE, "sparse": RetrievalMode.SPARSE, "hybrid": RetrievalMode.HYBRID}
         retrieval_mode = retrieval_mode_dict.get(self.config.retrieval_mode.value)
