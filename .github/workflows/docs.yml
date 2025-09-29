@@ -6,6 +6,7 @@ on:
     paths:
       - 'docs/**'
       - 'src/**'
+      - 'pyproject.toml'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
@@ -30,7 +31,7 @@ jobs:
       - name: Install doc deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r docs/requirements.txt
+          pip install -e ".[documentation]"
 
       - name: Install graphviz
         run: |
