@@ -40,7 +40,22 @@ jobs:
       - name: Build Sphinx HTML
         env:
           SPHINX_BUILD: "1"
+          PYTHONWARNINGS: "default"
         run: |
+          echo "=== DEBUG: tree ==="
+          find docs -maxdepth 3 -print
+          echo "=== DEBUG: python env ==="
+          python - <<'PY'
+          import sys, pkgutil
+          print("Python:", sys.version)
+          print("Site:", sys.path[:3])
+          import importlib
+          try:
+              import cardiology_gen_ai
+              print("Project import OK:", cardiology_gen_ai.__file__)
+          except Exception as e:
+              import traceback; traceback.print_exc()
+          PY
           test -f docs/source/conf.py || (echo "Missing docs/ directory" && exit 2)
           sphinx-build -b html docs/source docs/build/html
           touch docs/build/html/.nojekyll
