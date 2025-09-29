@@ -17,6 +17,7 @@ class EmbeddingConfig(BaseModel):
     model_name: str #: str : Model identifier used for both the embedding wrapper and the HF config.
     model: HuggingFaceEmbeddings = None #: :langchain:`HuggingFaceEmbeddings <huggingface/embeddings/langchain_huggingface.embeddings.huggingface.HuggingFaceEmbeddings.html>` : Instantiated embedding model (from :langchain:`HuggingFaceEmbeddings <huggingface/embeddings/langchain_huggingface.embeddings.huggingface.HuggingFaceEmbeddings.html>`).
     dim: int #: int : Embedding dimensionality (taken from the HuggingFace model config).
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @classmethod
     def from_config(cls, config_dict: Dict[str, Any]) -> "EmbeddingConfig":
