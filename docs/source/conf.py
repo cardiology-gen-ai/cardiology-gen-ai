@@ -139,7 +139,7 @@ extlinks = {
 }
 
 autodoc_typehints = "none"
-autodoc_mock_imports = ["torch"]
+autodoc_mock_imports = ["torch", "langchain_huggingface"]
 
 templates_path = ['_templates']
 exclude_patterns = ['.DS_Store']
