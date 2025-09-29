@@ -39,8 +39,8 @@ jobs:
         env:
           SPHINX_BUILD: "1"
         run: |
-          test -d docs/source/conf.py || (echo "Missing docs/ directory" && exit 2)
-          sphinx-build -b html docs docs/build/html
+          test -f docs/source/conf.py || (echo "Missing docs/ directory" && exit 2)
+          sphinx-build -b html docs/source docs/build/html
           touch docs/build/html/.nojekyll
 
       - name: Upload artifact
