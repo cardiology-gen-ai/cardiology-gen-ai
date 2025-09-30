@@ -51,6 +51,7 @@ class EmbeddingConfig(BaseModel):
         model_name = config_dict["deployment"]
         model = HuggingFaceEmbeddings(
             model_name=model_name,
+            cache_folder=os.environ.get("HUGGINGFACE_HUB_CACHE"),
             model_kwargs=model_kwargs,
             encode_kwargs=encode_kwargs,
         )
