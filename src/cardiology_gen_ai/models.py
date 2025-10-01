@@ -207,11 +207,15 @@ class QdrantVectorstore(Vectorstore):
         retrieval_mode_dict = \
             {"dense": RetrievalMode.DENSE, "sparse": RetrievalMode.SPARSE, "hybrid": RetrievalMode.HYBRID}
         retrieval_mode = retrieval_mode_dict.get(self.config.retrieval_mode.value)
+        cache_dir = os.environ.get("FASTEMBED_CACHE_PATH")
+        local_files_only = True if cache_dir is not None else False
         qdrant_vectorstore = QdrantVectorStore.from_existing_collection(
             url=self.url,
             collection_name=self.config.name,
             embedding=embeddings_model.model,
-            sparse_embedding=FastEmbedSparse(model_name="Qdrant/bm25"),
+            sparse_embedding=FastEmbedSparse(
+                model_name="Qdrant/bm25", cache_dir=cache_dir, local_files_only=local_files_only
+            ),
             vector_name="dense",
             sparse_vector_name="sparse",
             content_payload_key="page_content",
