@@ -42,7 +42,6 @@ def find_repo_root(start: Path) -> Path:
     return start.parent.parent
 
 REPO_ROOT = find_repo_root(HERE)
-sys.path.insert(0, str(REPO_ROOT / "src"))
 
 # Carica il .env reale
 if load_dotenv:
@@ -125,10 +124,10 @@ nitpick_ignore = [
 html_theme = 'sphinx_book_theme'  # "furo"  # TODO: change if needed
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
-    "pydantic": ("https://docs.pydantic.dev/latest/", None),
-    "langchain": ("https://python.langchain.com/api_reference/", None),
-    "transformers": ("https://huggingface.co/transformers/v2.11.0/", None),
+    "python": ("https://docs.python.org/3", {}),
+    "pydantic": ("https://docs.pydantic.dev/latest/", {}),
+    "langchain": ("https://python.langchain.com/api_reference/", {}),
+    "transformers": ("https://huggingface.co/transformers/v2.11.0/", {}),
 }
 
 extlinks = {
@@ -144,5 +143,6 @@ autodoc_mock_imports = []
 templates_path = ['_templates']
 exclude_patterns = ['.DS_Store']
 
-STATIC_DIR = Path(__file__).parent / "_static"
-html_static_path = ["_static"] if STATIC_DIR.exists() else []
+html_static_path = ['_static']
+
+sys.path.insert(0, str(REPO_ROOT / "src"))

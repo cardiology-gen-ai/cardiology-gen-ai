@@ -19,7 +19,7 @@ dependencies = [
     "pydantic==2.11.7",
     "transformers==4.56.0",
     "numpy==1.26.4",
-    "torch==2.2.2",
+    "torch==2.8.0",
     "langchain-qdrant==0.2.0",
     "langchain-community==0.3.25",
     "qdrant-client==1.15.1",

@@ -95,5 +95,5 @@ class ConfigManager:
         config = self._config.get(self._app_id)
         if not (general_config and config):
             raise ValueError(f"No configuration found for application: {self._app_id}")
-        app_config = config | general_config
+        app_config = general_config | config
         return app_config
