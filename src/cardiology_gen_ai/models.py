@@ -46,7 +46,7 @@ class EmbeddingConfig(BaseModel):
             kwargs = dict()
         encode_kwargs = {k: v for k, v in kwargs.items() if k in ["normalize_embeddings", "prompt_name"]}
         model_kwargs = {k: v for k, v in kwargs.items() if k in ["device"]}
-        if model_kwargs.get("device", None) is None or model_kwargs.get("device", None) is "cuda":
+        if model_kwargs.get("device", None) is None or model_kwargs.get("device", None) == "cuda":
             model_kwargs["device"] = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model_name = config_dict["deployment"]
         model = HuggingFaceEmbeddings(
@@ -61,7 +61,8 @@ class EmbeddingConfig(BaseModel):
     def to_config(self) -> Dict[str, Any]:
         embedding_config = dict()
         embedding_config["deployment"] = self.model_name
-        embedding_config["kwargs"] = self.model.model_kwargs.pop("device", None) | self.model.encode_kwargs
+        embedding_config["kwargs"] = {k: v for k, v in self.model.model_kwargs.items()
+                                      if k not in ["device"]} | self.model.encode_kwargs
         return embedding_config
 
 
