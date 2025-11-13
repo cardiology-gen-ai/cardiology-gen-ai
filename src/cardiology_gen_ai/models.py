@@ -12,6 +12,9 @@ from qdrant_client import QdrantClient
 from transformers import AutoConfig
 
 
+# TODO: maybe embeddings should be a sub-class of indexing
+
+
 class EmbeddingConfig(BaseModel):
     """Embedding model configuration (name, instantiated model and embedding dimension)."""
     model_name: str #: str : Model identifier used for both the embedding wrapper and the HF config.
