@@ -119,11 +119,11 @@ class IndexingConfig(BaseModel):
 
     def to_config(self) -> Dict[str, Any]:
         index_config = dict()
+        index_config["name"] = self.name
+        index_config["description"] = self.description
+        index_config["type"] = self.type.value
         index_config["distance"] = self.distance.value
         index_config["retrieval_mode"] = self.retrieval_mode.value
-        index_config["type"] = self.type.value
-        index_config["description"] = self.description
-        index_config["name"] = self.name
         return index_config
 
 
