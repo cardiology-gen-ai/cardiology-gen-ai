@@ -58,6 +58,12 @@ class EmbeddingConfig(BaseModel):
         dim = AutoConfig.from_pretrained(model_name).hidden_size
         return cls(model_name=model_name, model=model, dim=dim)
 
+    def to_config(self) -> Dict[str, Any]:
+        embedding_config = dict()
+        embedding_config["deployment"] = self.model_name
+        embedding_config["kwargs"] = self.model.model_kwargs | self.model.encode_kwargs
+        return embedding_config
+
 
 class IndexTypeNames(Enum):
     """Backend type for the vectorstore index."""
@@ -109,6 +115,15 @@ class IndexingConfig(BaseModel):
         folder = pathlib.Path(os.getenv("INDEX_ROOT"))
         other_config_dict = {k: v for k, v in config_dict.items() if k not in ["type", "distance", "retrieval_mode"]}
         return cls(type=index_type, distance=distance, retrieval_mode=retrieval_mode, folder=folder, **other_config_dict)
+
+    def to_config(self) -> Dict[str, Any]:
+        index_config = dict()
+        index_config["distance"] = self.distance.value
+        index_config["retrieval_mode"] = self.retrieval_mode.value
+        index_config["type"] = self.type.value
+        index_config["description"] = self.description
+        index_config["name"] = self.name
+        return index_config
 
 
 class Vectorstore(BaseModel, ABC):
