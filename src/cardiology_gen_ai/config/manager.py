@@ -25,7 +25,7 @@ class ConfigManager:
     _app_config: Dict[str, Any] #: Dict[str, Any] : Merged configuration for the selected ``_app_id``.
     def __init__(self,
                  config_path: str = os.getenv("CONFIG_PATH"),
-                 app_config_path: Optional[str] = os.getenv("APP_CONFIG_PATH"),
+                 app_config_path: Optional[str] = None,
                  app_id: str = "cardiology_protocols"):
         self._config_path = config_path
         self._app_config_path = app_config_path
