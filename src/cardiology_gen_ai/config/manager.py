@@ -58,17 +58,16 @@ class ConfigManager:
                 with open(self._app_config_path, "r") as app_config_file:
                     raw_app_config_json = app_config_file.read()
 
-                def replace_env_var(match):
-                    var_name = match.group(1)
-                    return os.environ.get(var_name, f"<MISSING:{var_name}>")
-
-                interpolated_json = re.sub(r"\$\{(\w+)\}", replace_env_var, raw_config_json)
-                config_json = json.loads(interpolated_json)
-                app_config_json = None
-                if raw_app_config_json is not None:
-                    interpolated_app_json = re.sub(r"\$\{(\w+)\}", replace_env_var, raw_app_config_json)
-                    app_config_json = json.loads(interpolated_app_json)
-                return config_json, app_config_json
+            def replace_env_var(match):
+                var_name = match.group(1)
+                return os.environ.get(var_name, f"<MISSING:{var_name}>")
+            interpolated_json = re.sub(r"\$\{(\w+)\}", replace_env_var, raw_config_json)
+            config_json = json.loads(interpolated_json)
+            app_config_json = None
+            if raw_app_config_json is not None:
+                interpolated_app_json = re.sub(r"\$\{(\w+)\}", replace_env_var, raw_app_config_json)
+                app_config_json = json.loads(interpolated_app_json)
+            return config_json, app_config_json
         except FileNotFoundError:
             raise FileNotFoundError(f"Configuration file not found at {self._config_path} or {self._app_config_path}")
         except json.JSONDecodeError:
