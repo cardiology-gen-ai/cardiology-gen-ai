@@ -6,7 +6,7 @@ from typing import Dict, Any, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from langchain.embeddings import Embeddings, init_embeddings
-from langchain_classic.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from transformers import AutoConfig
@@ -55,7 +55,7 @@ class EmbeddingConfig(BaseModel):
         model_name = config_dict["deployment"]
         model = init_embeddings(
             model=model_name,
-            model_provider="huggingface",
+            provider="huggingface",
             cache_folder=os.environ.get("HUGGINGFACE_HUB_CACHE"),
             model_kwargs=model_kwargs,
             encode_kwargs=encode_kwargs,
