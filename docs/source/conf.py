@@ -126,12 +126,12 @@ html_theme = 'sphinx_book_theme'  # "furo"  # TODO: change if needed
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", {}),
     "pydantic": ("https://docs.pydantic.dev/latest/", {}),
-    "langchain": ("https://python.langchain.com/api_reference/", {}),
+    "langchain": ("https://reference.langchain.com/python/langchain/", {}),
     "transformers": ("https://huggingface.co/transformers/v2.11.0/", {}),
 }
 
 extlinks = {
-    "langchain": ("https://python.langchain.com/api_reference/%s", "%s"),
+    "langchain": ("https://reference.langchain.com/python/langchain//%s", "%s"),
     "pydantic": ("https://docs.pydantic.dev/latest/api/%s", "%s"),
     "faiss": ("https://faiss.ai/cpp_api/%s", "%s"),
     "qdrant": ("https://python-client.qdrant.tech/%s", "%s")
