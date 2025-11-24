@@ -24,7 +24,7 @@ class ConfigManager:
                  app_id: str = "cardiology_protocols"):
         self._config_path = config_path
         self._app_id = app_id
-        self._config = self._load_config()
+        self._config = self._get_app_config()
 
     def _load_config(self) -> Tuple[Dict[str, Any], Dict[Any, Any] | None]:
         """
@@ -73,7 +73,8 @@ class ConfigManager:
         ValueError
             If no configuration exists for the selected ``_app_id``.
         """
-        config = self._config.get(self._app_id)
+        config_dict = self._load_config()
+        config = config_dict.get(self._app_id)
         if not config:
             raise ValueError(f"No configuration found for application: {self._app_id}")
         return config
