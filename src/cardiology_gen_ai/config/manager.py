@@ -23,7 +23,6 @@ class ConfigManager:
                  config_path: str = os.getenv("CONFIG_PATH"),
                  app_id: str = "cardiology_protocols"):
         self._config_path = config_path
-        self._app_config_path = app_config_path
         self._app_id = app_id
         self._config = self._load_config()
 
