@@ -64,8 +64,6 @@ class EmbeddingConfig(BaseModel):
                 model=model_name,
                 provider="ollama",
             )
-            out = subprocess.check_output(["ollama", "show", model_name, "--json"])
-            dim = json.loads(out)["model_info"]["embedding_length"]
         else:
             model = init_embeddings(
                 model=model_name,
@@ -74,7 +72,7 @@ class EmbeddingConfig(BaseModel):
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
             )
-            dim = AutoConfig.from_pretrained(model_name).hidden_size
+        dim = len(model.embed_query("Computing embedding dimension."))
         return cls(model_name=model_name, ollama=ollama_model, model=model, dim=dim, kwargs=kwargs)
 
     def to_config(self) -> Dict[str, Any]:
