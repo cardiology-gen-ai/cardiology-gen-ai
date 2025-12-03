@@ -1,5 +1,7 @@
+import json
 import os
 import pathlib
+import subprocess
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Dict, Any, Optional
@@ -58,14 +60,21 @@ class EmbeddingConfig(BaseModel):
         ollama_model = config_dict.get("ollama", False)
         if ollama_model:
             ollama.pull(model_name)
-        model = init_embeddings(
-            model=model_name,
-            provider="ollama" if ollama_model else "huggingface",
-            cache_folder=os.environ.get("HUGGINGFACE_HUB_CACHE"),
-            model_kwargs=model_kwargs,
-            encode_kwargs=encode_kwargs,
-        )
-        dim = AutoConfig.from_pretrained(model_name).hidden_size
+            model = init_embeddings(
+                model=model_name,
+                provider="ollama",
+            )
+            out = subprocess.check_output(["ollama", "show", model, "--json"])
+            dim = json.loads(out)["model_info"]["embedding_length"]
+        else:
+            model = init_embeddings(
+                model=model_name,
+                provider="ollama" if ollama_model else "huggingface",
+                cache_folder=os.environ.get("HUGGINGFACE_HUB_CACHE"),
+                model_kwargs=model_kwargs,
+                encode_kwargs=encode_kwargs,
+            )
+            dim = AutoConfig.from_pretrained(model_name).hidden_size
         return cls(model_name=model_name, ollama=ollama_model, model=model, dim=dim, kwargs=kwargs)
 
     def to_config(self) -> Dict[str, Any]:
