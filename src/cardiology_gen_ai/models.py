@@ -57,7 +57,7 @@ class EmbeddingConfig(BaseModel):
         model_name = config_dict["deployment"]
         ollama_model = config_dict.get("ollama", False)
         if ollama_model:
-            client = Client(host="ollama", port=11435)
+            client = Client(host="ollama")
             client.pull(model_name)
             model = init_embeddings(
                 model=model_name,
