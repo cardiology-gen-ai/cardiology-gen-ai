@@ -62,6 +62,7 @@ class EmbeddingConfig(BaseModel):
             model = init_embeddings(
                 model=model_name,
                 provider="ollama",
+                base_url="http://ollama:11435"
             )
         else:
             model = init_embeddings(
