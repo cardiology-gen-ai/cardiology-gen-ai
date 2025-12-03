@@ -5,7 +5,6 @@ from enum import Enum
 from typing import Dict, Any, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
-import ollama
 from ollama import Client
 from langchain.embeddings import Embeddings, init_embeddings
 from langchain_community.vectorstores import FAISS
