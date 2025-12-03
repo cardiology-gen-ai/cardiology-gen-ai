@@ -1,18 +1,16 @@
-import json
 import os
 import pathlib
-import subprocess
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Dict, Any, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 import ollama
+from ollama import Client
 from langchain.embeddings import Embeddings, init_embeddings
 from langchain_community.vectorstores import FAISS
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
-from transformers import AutoConfig
 
 
 # TODO: maybe embeddings should be a sub-class of indexing
@@ -59,7 +57,8 @@ class EmbeddingConfig(BaseModel):
         model_name = config_dict["deployment"]
         ollama_model = config_dict.get("ollama", False)
         if ollama_model:
-            ollama.pull(model_name)
+            client = Client(host="ollama", port=11435)
+            client.pull(model_name)
             model = init_embeddings(
                 model=model_name,
                 provider="ollama",
