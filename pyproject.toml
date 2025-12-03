@@ -19,6 +19,7 @@ dependencies = [
     "langchain>=1.0.0",
     "langchain-huggingface>=1.0.0",
     "langchain-classic>=1.0.0",
+    "langchain-ollama>=1.0.0",
     "pydantic==2.11.7",
     "transformers==4.56.0",
     "numpy==1.26.4",

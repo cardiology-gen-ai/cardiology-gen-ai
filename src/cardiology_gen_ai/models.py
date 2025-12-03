@@ -5,6 +5,7 @@ from enum import Enum
 from typing import Dict, Any, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
+import ollama
 from langchain.embeddings import Embeddings, init_embeddings
 from langchain_community.vectorstores import FAISS
 from langchain_qdrant import QdrantVectorStore
@@ -18,6 +19,7 @@ from transformers import AutoConfig
 class EmbeddingConfig(BaseModel):
     """Embedding model configuration (name, instantiated model and embedding dimension)."""
     model_name: str #: str : Model identifier used for both the embedding wrapper and the HF config.
+    ollama: bool  #: bool : Whether to serve the embedding model via ollama
     model: Embeddings = None #: :langchain:`Embeddings <embeddings>` : Instantiated embedding model.
     kwargs: Dict[str, Any] = None #: dict : Provider-specific kwargs passed to the embedding model.
     dim: int #: int : Embedding dimensionality (taken from the HuggingFace model config).
@@ -53,19 +55,23 @@ class EmbeddingConfig(BaseModel):
         if model_kwargs.get("device", None) is None or model_kwargs.get("device", None) == "cuda":
             model_kwargs["device"] = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model_name = config_dict["deployment"]
+        ollama_model = config_dict.get("ollama", False)
+        if ollama_model:
+            ollama.pull(model_name)
         model = init_embeddings(
             model=model_name,
-            provider="huggingface",
+            provider="ollama" if ollama_model else "huggingface",
             cache_folder=os.environ.get("HUGGINGFACE_HUB_CACHE"),
             model_kwargs=model_kwargs,
             encode_kwargs=encode_kwargs,
         )
         dim = AutoConfig.from_pretrained(model_name).hidden_size
-        return cls(model_name=model_name, model=model, dim=dim, kwargs=kwargs)
+        return cls(model_name=model_name, ollama=ollama_model, model=model, dim=dim, kwargs=kwargs)
 
     def to_config(self) -> Dict[str, Any]:
         embedding_config = dict()
         embedding_config["deployment"] = self.model_name
+        embedding_config["ollama"] = self.ollama
         embedding_config["kwargs"] = {k: v for k, v in self.kwargs.items()
                                       if k not in ["device"]}
         return embedding_config
