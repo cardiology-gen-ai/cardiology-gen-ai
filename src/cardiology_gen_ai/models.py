@@ -64,7 +64,7 @@ class EmbeddingConfig(BaseModel):
                 model=model_name,
                 provider="ollama",
             )
-            out = subprocess.check_output(["ollama", "show", model, "--json"])
+            out = subprocess.check_output(["ollama", "show", model_name, "--json"])
             dim = json.loads(out)["model_info"]["embedding_length"]
         else:
             model = init_embeddings(
