@@ -1,6 +1,5 @@
 import os
 import pathlib
-import time
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Dict, Any, Optional
@@ -206,17 +205,7 @@ class QdrantVectorstore(Vectorstore):
             from qdrant_client import QdrantClient
             if not self.url:
                 raise RuntimeError("QDRANT_URL is not set")
-            for attempt in range(5):
-                try:
-                    self.client = QdrantClient(self.url)
-                    self.client.get_collections()
-                    break
-                except Exception as e:
-                    print(
-                        f"[QdrantVectorstore] Connessione fallita a Qdrant (tentativo {attempt+1}/): {e}")
-                    if attempt == self.retry_attempts:
-                        raise ConnectionError(f"Impossibile connettersi a Qdrant a {self.url}") from e
-                    time.sleep(5)
+            self.client = QdrantClient(self.url)
         return self.client
 
     def vectorstore_exists(self) -> bool:
