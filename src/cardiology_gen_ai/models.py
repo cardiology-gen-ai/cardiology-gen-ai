@@ -1,5 +1,6 @@
 import os
 import pathlib
+import time
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Dict, Any, Optional
@@ -66,7 +67,7 @@ class EmbeddingConfig(BaseModel):
         else:
             model = init_embeddings(
                 model=model_name,
-                provider="ollama" if ollama_model else "huggingface",
+                provider="huggingface",
                 cache_folder=os.environ.get("HUGGINGFACE_HUB_CACHE"),
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
@@ -205,7 +206,17 @@ class QdrantVectorstore(Vectorstore):
             from qdrant_client import QdrantClient
             if not self.url:
                 raise RuntimeError("QDRANT_URL is not set")
-            self.client = QdrantClient(self.url)
+            for attempt in range(5):
+                try:
+                    self.client = QdrantClient(self.url)
+                    self.client.get_collections()
+                    break
+                except Exception as e:
+                    print(
+                        f"[QdrantVectorstore] Connessione fallita a Qdrant (tentativo {attempt+1}/): {e}")
+                    if attempt == self.retry_attempts:
+                        raise ConnectionError(f"Impossibile connettersi a Qdrant a {self.url}") from e
+                    time.sleep(5)
         return self.client
 
     def vectorstore_exists(self) -> bool:
