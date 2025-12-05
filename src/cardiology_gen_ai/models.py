@@ -254,7 +254,6 @@ class QdrantVectorstore(Vectorstore):
             content_payload_key="page_content",
             metadata_payload_key="metadata",
             retrieval_mode=retrieval_mode,
-            force_recreate=False,
         )
         self.vectorstore = qdrant_vectorstore
         return qdrant_vectorstore
