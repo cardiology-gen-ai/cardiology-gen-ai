@@ -56,12 +56,12 @@ class EmbeddingConfig(BaseModel):
         model_name = config_dict["deployment"]
         ollama_model = config_dict.get("ollama", False)
         if ollama_model:
-            client = Client(host="http://ollama:11434")
+            client = Client(os.getenv("OLLAMA_URL"))
             client.pull(model_name)
             model = init_embeddings(
                 model=model_name,
                 provider="ollama",
-                base_url="http://ollama:11434"
+                base_url=os.getenv("OLLAMA_URL")
             )
         else:
             model = init_embeddings(
@@ -249,11 +249,12 @@ class QdrantVectorstore(Vectorstore):
             sparse_embedding=FastEmbedSparse(
                 model_name="Qdrant/bm25", cache_dir=cache_dir, local_files_only=local_files_only
             ),
-            vector_name="dense",
+            vector_name="",
             sparse_vector_name="sparse",
             content_payload_key="page_content",
             metadata_payload_key="metadata",
             retrieval_mode=retrieval_mode,
+            force_recreate=False,
         )
         self.vectorstore = qdrant_vectorstore
         return qdrant_vectorstore
