@@ -1,5 +1,6 @@
 import os
 import pathlib
+import pickle
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Dict, Any, Optional
@@ -10,7 +11,6 @@ from langchain.embeddings import Embeddings, init_embeddings
 from langchain_community.vectorstores import FAISS
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
-
 
 # TODO: maybe embeddings should be a sub-class of indexing
 
@@ -87,6 +87,7 @@ class IndexTypeNames(Enum):
     """Backend type for the vectorstore index."""
     qdrant = "qdrant" #: :langchain:`Qdrant <qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html#langchain_qdrant.qdrant.QdrantVectorStore>`
     faiss = "faiss" #: :langchain:`FAISS <community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html>`
+    bm25 = "bm25"
 
 
 class DistanceTypeNames(Enum):
@@ -153,7 +154,7 @@ class Vectorstore(BaseModel, ABC):
     Subclasses must implement creation/loading and existence checks, and expose a way to count stored documents/chunks.
     """
     config: IndexingConfig #: IndexingConfig :  Index configuration.
-    vectorstore: QdrantVectorStore | FAISS = None #: :langchain:`Qdrant <qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html#langchain_qdrant.qdrant.QdrantVectorStore>` | :langchain:`FAISS <community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html>` : Underlying vector store instance.
+    vectorstore: QdrantVectorStore | FAISS | Dict = None #: :langchain:`Qdrant <qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html#langchain_qdrant.qdrant.QdrantVectorStore>` | :langchain:`FAISS <community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html>` : Underlying vector store instance.
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @abstractmethod
@@ -169,7 +170,7 @@ class Vectorstore(BaseModel, ABC):
         pass
 
     @abstractmethod
-    def load_vectorstore(self, **kwargs) -> QdrantVectorStore | FAISS:
+    def load_vectorstore(self, **kwargs) -> QdrantVectorStore | FAISS | Dict:
         """
         Load/open the underlying vector store.
 
@@ -195,7 +196,6 @@ class Vectorstore(BaseModel, ABC):
 
 class QdrantVectorstore(Vectorstore):
     """Vector store adapter backed by Qdrant."""
-    # TODO: maybe should be changed
     url: Optional[str] = Field(default_factory=lambda: os.getenv("QDRANT_URL")) #: str : Qdrant vectorstore endpoint URL (defaults to ``os.getenv("QDRANT_URL")``).
     client: QdrantClient = None #: :qdrant:`QdrantClient <qdrant_client.qdrant_client>` : Low-level Qdrant client bound to ``url``.
     vectorstore: QdrantVectorStore = None #:  :langchain:`QdrantVectorStore <qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html#langchain_qdrant.qdrant.QdrantVectorStore>` : LangChain Qdrant vector store instance when loaded.
@@ -326,3 +326,21 @@ class FaissVectorstore(Vectorstore):
             Number of stored vectors.
         """
         return int(self.vectorstore.index.ntotal)
+
+
+class BM25Vectorstore(Vectorstore):
+    vectorstore: Dict = None
+
+    def vectorstore_exists(self) -> bool:
+        vectorstore_path = self.config.folder / (self.config.name + "_bm25.pkl")
+        return vectorstore_path.is_file()
+
+    def load_vectorstore(self, **kwargs) -> Dict:
+        with open(self.config.folder / (self.config.name + "_bm25.pkl"), "rb") as f:
+            vectorstore = pickle.load(f)
+        self.vectorstore = vectorstore
+        return vectorstore
+
+    def get_n_documents_in_vectorstore(self) -> int:
+        return len(self.vectorstore["embeddings"])
+
