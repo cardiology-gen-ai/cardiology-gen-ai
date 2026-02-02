@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from ollama import Client
 from langchain.embeddings import Embeddings, init_embeddings
 from langchain_community.vectorstores import FAISS
-from langchain_qdrant import QdrantVectorStore
+from langchain_qdrant import QdrantVectorStore, RetrievalMode
 from qdrant_client import QdrantClient
 
 # TODO: maybe embeddings should be a sub-class of indexing
@@ -279,6 +279,7 @@ class FaissVectorstore(Vectorstore):
     If persisted, stores two files in ``config.folder``: ``<name>.faiss`` (index) and ``<name>.pkl`` (docstore).
     """
     vectorstore: FAISS = None #: :langchain:`FAISS <community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html>` : LangChain FAISS vector store instance when loaded.
+    retrieval_mode: RetrievalMode = RetrievalMode.DENSE
 
     def vectorstore_exists(self) -> bool:
         """
@@ -330,6 +331,7 @@ class FaissVectorstore(Vectorstore):
 
 class BM25Vectorstore(Vectorstore):
     vectorstore: Dict = None
+    retrieval_mode: RetrievalMode = RetrievalMode.SPARSE
 
     def vectorstore_exists(self) -> bool:
         vectorstore_path = self.config.folder / (self.config.name + "_bm25.pkl")
