@@ -1,9 +1,10 @@
 import os
 import pathlib
 import pickle
+import re
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from pydantic import BaseModel, ConfigDict, Field
 
 from ollama import Client
@@ -345,4 +346,8 @@ class BM25Vectorstore(Vectorstore):
 
     def get_n_documents_in_vectorstore(self) -> int:
         return len(self.vectorstore["embeddings"])
+
+    @staticmethod
+    def tokenize(text: str) -> List[str]:
+        return re.findall(r"\b\w+\b", text.lower())
 
