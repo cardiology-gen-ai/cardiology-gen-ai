@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from pathlib import Path
 from typing import Tuple, Any, Dict, Optional
 
 
@@ -26,7 +27,7 @@ class ConfigManager:
         self._app_id = app_id
         self._config = self._get_app_config()
 
-    def _load_config(self) -> Tuple[Dict[str, Any], Dict[Any, Any] | None]:
+    def _load_config(self, config_path: Optional[Path] = None) -> Tuple[Dict[str, Any], Dict[Any, Any] | None]:
         """
         Read and parse the general and application configuration files, interpolating
         environment variables written as ``${VAR}``.
@@ -43,8 +44,9 @@ class ConfigManager:
         ValueError
             If either file contains invalid JSON.
         """
+        _config_path = self._config_path or config_path
         try:
-            with open(self._config_path, "r") as config_file:
+            with open(_config_path, "r") as config_file:
                 raw_config_json = config_file.read()
 
             def replace_env_var(match):
@@ -54,10 +56,10 @@ class ConfigManager:
             config_json = json.loads(interpolated_json)
             return config_json
         except FileNotFoundError:
-            raise FileNotFoundError(f"Configuration file not found at {self._config_path} or {self._app_config_path}")
+            raise FileNotFoundError(f"Configuration file not found at {_config_path}")
         except json.JSONDecodeError:
             raise ValueError(
-                f"Invalid JSON format in configuration file at {self._config_path} or {self._app_config_path}")
+                f"Invalid JSON format in configuration file at {_config_path}")
 
     def _get_app_config(self) -> Dict[str, Any]:
         """
@@ -74,7 +76,7 @@ class ConfigManager:
             If no configuration exists for the selected ``_app_id``.
         """
         config_dict = self._load_config()
-        config = config_dict.get(self._app_id)
+        config = config_dict.get(self._app_id) if isinstance(config_dict, dict) else None
         if not config:
             raise ValueError(f"No configuration found for application: {self._app_id}")
         return config
