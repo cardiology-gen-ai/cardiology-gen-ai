@@ -12,6 +12,7 @@ from langchain.embeddings import Embeddings, init_embeddings
 from langchain_community.vectorstores import FAISS
 from langchain_qdrant import QdrantVectorStore, RetrievalMode
 from qdrant_client import QdrantClient
+from rank_bm25 import BM25Plus
 
 
 class EmbeddingConfig(BaseModel):
@@ -152,8 +153,8 @@ class IndexingConfig(BaseModel):
 
 
 class BM25Dict(BaseModel):
-    bm25: List
-    documents: List
+    bm25: BM25Plus = None
+    documents: List = None
 
 
 class Vectorstore(BaseModel, ABC):
