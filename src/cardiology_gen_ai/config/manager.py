@@ -27,7 +27,7 @@ class ConfigManager:
         self._app_id = app_id
         self._config = self._get_app_config()
 
-    def _load_config(self, config_path: Optional[Path] = None) -> Tuple[Dict[str, Any], Dict[Any, Any] | None]:
+    def _load_config(self, config_path: Optional[Path] = None) -> Dict[str, Any] | None:
         """
         Read and parse the general and application configuration files, interpolating
         environment variables written as ``${VAR}``.
