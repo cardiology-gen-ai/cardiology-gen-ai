@@ -136,7 +136,7 @@ class IndexingConfig(BaseModel):
         folder = config_dict.get("folder") or os.getenv("INDEX_ROOT")
         embeddings = EmbeddingConfig.from_config(config_dict["embeddings"]) if config_dict.get("embeddings", None) else None
         other_config_dict = {
-            k: v for k, v in config_dict.items() if k not in ["type", "distance", "retrieval_mode", "embeddings"]
+            k: v for k, v in config_dict.items() if k not in ["type", "distance", "retrieval_mode", "embeddings", "folder"]
         }
         return cls(type=index_type, distance=distance, retrieval_mode=retrieval_mode,
                    folder=pathlib.Path(folder), embeddings=embeddings, **other_config_dict)
