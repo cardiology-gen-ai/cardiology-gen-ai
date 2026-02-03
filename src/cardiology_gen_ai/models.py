@@ -13,8 +13,6 @@ from langchain_community.vectorstores import FAISS
 from langchain_qdrant import QdrantVectorStore, RetrievalMode
 from qdrant_client import QdrantClient
 
-# TODO: maybe embeddings should be a sub-class of indexing
-
 
 class EmbeddingConfig(BaseModel):
     """Embedding model configuration (name, instantiated model and embedding dimension)."""
@@ -79,8 +77,7 @@ class EmbeddingConfig(BaseModel):
         embedding_config = dict()
         embedding_config["deployment"] = self.model_name
         embedding_config["ollama"] = self.ollama
-        embedding_config["kwargs"] = {k: v for k, v in self.kwargs.items()
-                                      if k not in ["device"]}
+        embedding_config["kwargs"] = {k: v for k, v in self.kwargs.items() if k not in ["device"]}
         return embedding_config
 
 
@@ -112,6 +109,8 @@ class IndexingConfig(BaseModel):
     type: IndexTypeNames #: :class:`~cardiology_gen_ai.models.IndexTypeNames` : Backend type (``qdrant`` or ``faiss``).
     distance: DistanceTypeNames #: :class:`~cardiology_gen_ai.models.DistanceTypeNames` : Similarity/distance metric.
     retrieval_mode: RetrievalTypeNames #: :class:`~cardiology_gen_ai.models.RetrievalTypeNames` : Retrieval strategy (default ``dense``).
+    embeddings: Optional[EmbeddingConfig] = None
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @classmethod
     def from_config(cls, config_dict: Dict[str, Any]) -> "IndexingConfig":
@@ -133,8 +132,12 @@ class IndexingConfig(BaseModel):
         retrieval = config_dict.get("retrieval_mode", RetrievalTypeNames.dense)
         retrieval_mode = RetrievalTypeNames(retrieval) if isinstance(retrieval, str) is not None else  RetrievalTypeNames.dense
         folder = pathlib.Path(os.getenv("INDEX_ROOT"))
-        other_config_dict = {k: v for k, v in config_dict.items() if k not in ["type", "distance", "retrieval_mode"]}
-        return cls(type=index_type, distance=distance, retrieval_mode=retrieval_mode, folder=folder, **other_config_dict)
+        embeddings = EmbeddingConfig.from_config(config_dict["embeddings"]) if config_dict.get("embeddings", None) else None
+        other_config_dict = {
+            k: v for k, v in config_dict.items() if k not in ["type", "distance", "retrieval_mode", "embeddings"]
+        }
+        return cls(type=index_type, distance=distance, retrieval_mode=retrieval_mode,
+                   folder=folder, embeddings=embeddings, **other_config_dict)
 
     def to_config(self) -> Dict[str, Any]:
         index_config = dict()
@@ -143,6 +146,8 @@ class IndexingConfig(BaseModel):
         index_config["type"] = self.type.value
         index_config["distance"] = self.distance.value
         index_config["retrieval_mode"] = self.retrieval_mode.value
+        if self.embeddings:
+            index_config["embeddings"] = self.embeddings.to_config()
         return index_config
 
 
