@@ -44,7 +44,7 @@ class ConfigManager:
         ValueError
             If either file contains invalid JSON.
         """
-        _config_path = self._config_path or config_path
+        _config_path = config_path or self._config_path
         try:
             with open(_config_path, "r") as config_file:
                 raw_config_json = config_file.read()
