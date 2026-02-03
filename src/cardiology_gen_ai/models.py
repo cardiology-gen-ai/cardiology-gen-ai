@@ -155,6 +155,7 @@ class IndexingConfig(BaseModel):
 class BM25Dict(BaseModel):
     bm25: BM25Plus = None
     documents: List = None
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class Vectorstore(BaseModel, ABC):
