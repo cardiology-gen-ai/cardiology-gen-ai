@@ -133,13 +133,13 @@ class IndexingConfig(BaseModel):
         retrieval = config_dict.get("retrieval_mode") or RetrievalTypeNames.dense.value
         retrieval_mode = RetrievalTypeNames(retrieval) if isinstance(retrieval, str) else \
             [RetrievalTypeNames(r) for r in retrieval]
-        folder = pathlib.Path(config_dict.get("folder")) or pathlib.Path(os.getenv("INDEX_ROOT"))
+        folder = config_dict.get("folder") or os.getenv("INDEX_ROOT")
         embeddings = EmbeddingConfig.from_config(config_dict["embeddings"]) if config_dict.get("embeddings", None) else None
         other_config_dict = {
             k: v for k, v in config_dict.items() if k not in ["type", "distance", "retrieval_mode", "embeddings"]
         }
         return cls(type=index_type, distance=distance, retrieval_mode=retrieval_mode,
-                   folder=folder, embeddings=embeddings, **other_config_dict)
+                   folder=pathlib.Path(folder), embeddings=embeddings, **other_config_dict)
 
     def to_config(self) -> Dict[str, Any]:
         index_config = dict()
