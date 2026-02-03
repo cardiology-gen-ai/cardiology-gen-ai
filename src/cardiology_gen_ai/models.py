@@ -350,7 +350,7 @@ class BM25Vectorstore(Vectorstore):
         return vectorstore
 
     def get_n_documents_in_vectorstore(self) -> int:
-        return len(self.vectorstore["embeddings"])
+        return len(self.vectorstore["documents"])
 
     @staticmethod
     def tokenize(text: str) -> List[str]:
