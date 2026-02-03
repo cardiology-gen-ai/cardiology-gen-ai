@@ -130,8 +130,9 @@ class IndexingConfig(BaseModel):
         """
         index_type = IndexTypeNames(config_dict["type"])
         distance = DistanceTypeNames(config_dict["distance"])
-        retrieval = config_dict.get("retrieval_mode", RetrievalTypeNames.dense)
-        retrieval_mode = RetrievalTypeNames(retrieval) if isinstance(retrieval, str) is not None else  RetrievalTypeNames.dense
+        retrieval = config_dict.get("retrieval_mode") or RetrievalTypeNames.dense.value
+        retrieval_mode = RetrievalTypeNames(retrieval) if isinstance(retrieval, str) else \
+            [RetrievalTypeNames(r) for r in retrieval]
         folder = pathlib.Path(config_dict.get("folder")) or pathlib.Path(os.getenv("INDEX_ROOT"))
         embeddings = EmbeddingConfig.from_config(config_dict["embeddings"]) if config_dict.get("embeddings", None) else None
         other_config_dict = {
@@ -146,8 +147,9 @@ class IndexingConfig(BaseModel):
         index_config["description"] = self.description
         index_config["type"] = self.type.value
         index_config["distance"] = self.distance.value
-        index_config["retrieval_mode"] = self.retrieval_mode.value
-        if self.embeddings:
+        index_config["retrieval_mode"] = [r.value for r in self.retrieval_mode] if isinstance(self.retrieval_mode, list) \
+            else self.retrieval_mode.value
+        if self.embeddings is not None:
             index_config["embeddings"] = self.embeddings.to_config()
         return index_config
 
