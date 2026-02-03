@@ -151,6 +151,11 @@ class IndexingConfig(BaseModel):
         return index_config
 
 
+class BM25Dict(BaseModel):
+    bm25: List
+    documents: List
+
+
 class Vectorstore(BaseModel, ABC):
     """
     Abstract base class for vector store adapters (:langchain:`Qdrant <qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html#langchain_qdrant.qdrant.QdrantVectorStore>`, :langchain:`FAISS <community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html>`).
@@ -160,7 +165,7 @@ class Vectorstore(BaseModel, ABC):
     Subclasses must implement creation/loading and existence checks, and expose a way to count stored documents/chunks.
     """
     config: IndexingConfig #: IndexingConfig :  Index configuration.
-    vectorstore: QdrantVectorStore | FAISS | Dict = None #: :langchain:`Qdrant <qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html#langchain_qdrant.qdrant.QdrantVectorStore>` | :langchain:`FAISS <community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html>` : Underlying vector store instance.
+    vectorstore: QdrantVectorStore | FAISS | BM25Dict = None #: :langchain:`Qdrant <qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html#langchain_qdrant.qdrant.QdrantVectorStore>` | :langchain:`FAISS <community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html>` : Underlying vector store instance.
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @abstractmethod
@@ -176,7 +181,7 @@ class Vectorstore(BaseModel, ABC):
         pass
 
     @abstractmethod
-    def load_vectorstore(self, **kwargs) -> QdrantVectorStore | FAISS | Dict:
+    def load_vectorstore(self, **kwargs) -> QdrantVectorStore | FAISS | BM25Dict:
         """
         Load/open the underlying vector store.
 
@@ -334,11 +339,6 @@ class FaissVectorstore(Vectorstore):
             Number of stored vectors.
         """
         return int(self.vectorstore.index.ntotal)
-
-
-class BM25Dict(BaseModel):
-    bm25: List
-    documents: List
 
 
 class BM25Vectorstore(Vectorstore):

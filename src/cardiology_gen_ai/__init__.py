@@ -1,6 +1,6 @@
 from .models import (EmbeddingConfig, IndexingConfig, RetrievalTypeNames,
                      IndexTypeNames, DistanceTypeNames,
-                     Vectorstore, QdrantVectorstore, FaissVectorstore, BM25Vectorstore)
+                     Vectorstore, QdrantVectorstore, FaissVectorstore, BM25Vectorstore, BM25Dict)
 
 from .utils.logger import get_logger
 from .utils.singleton import Singleton
@@ -16,4 +16,5 @@ __all__ = [
     "QdrantVectorstore",
     "FaissVectorstore",
     "BM25Vectorstore",
+    "BM25Dict"
 ]
