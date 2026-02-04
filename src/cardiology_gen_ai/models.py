@@ -27,7 +27,7 @@ class EmbeddingConfig(BaseModel):
     @classmethod
     def from_config(cls, config_dict: Dict[str, Any]) -> "EmbeddingConfig":
         """
-        Build an :class:`~cardiology_gen_ai.models.EmbeddingConfig` from a configuration mapping.
+        Build an :class:`~cardiology_gen_ai.models.EmbeddingConfig` from args configuration mapping.
 
         Parameters
         ----------
@@ -117,7 +117,7 @@ class IndexingConfig(BaseModel):
     description: str #: str : Human-readable description of the index.
     folder: pathlib.Path #: pathlib.Path : Root folder vectorstores are saved (defaults to ``os.getenv("INDEX_ROOT")``).
     type: IndexTypeNames #: :class:`~cardiology_gen_ai.models.IndexTypeNames` : Backend type (``qdrant`` or ``faiss``).
-    distance: DistanceTypeNames #: :class:`~cardiology_gen_ai.models.DistanceTypeNames` : Similarity/distance metric.
+    distance: Optional[DistanceTypeNames] = None #: :class:`~cardiology_gen_ai.models.DistanceTypeNames` : Similarity/distance metric.
     retrieval_mode: RetrievalTypeNames | List[RetrievalTypeNames] #: :class:`~cardiology_gen_ai.models.RetrievalTypeNames` : Retrieval strategy (default ``dense``).
     embeddings: Optional[EmbeddingConfig] = None
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -125,7 +125,7 @@ class IndexingConfig(BaseModel):
     @classmethod
     def from_config(cls, config_dict: Dict[str, Any]) -> "IndexingConfig":
         """
-        Build an :class:`~cardiology_gen_ai.models.IndexingConfig` from a configuration mapping.
+        Build an :class:`~cardiology_gen_ai.models.IndexingConfig` from args configuration mapping.
 
         Parameters
         ----------
@@ -138,7 +138,7 @@ class IndexingConfig(BaseModel):
             Validated configuration object.
         """
         index_type = IndexTypeNames(config_dict["type"])
-        distance = DistanceTypeNames(config_dict["distance"])
+        distance = DistanceTypeNames(config_dict["distance"]) if config_dict.get("distance") else None
         retrieval = config_dict.get("retrieval_mode") or RetrievalTypeNames.dense.value
         retrieval_mode = RetrievalTypeNames(retrieval) if isinstance(retrieval, str) else \
             [RetrievalTypeNames(r) for r in retrieval]
@@ -155,7 +155,8 @@ class IndexingConfig(BaseModel):
         index_config["name"] = self.name
         index_config["description"] = self.description
         index_config["type"] = self.type.value
-        index_config["distance"] = self.distance.value
+        if self.distance is not None:
+            index_config["distance"] = self.distance.value
         index_config["retrieval_mode"] = [r.value for r in self.retrieval_mode] if isinstance(self.retrieval_mode, list) \
             else self.retrieval_mode.value
         if self.embeddings is not None:
@@ -175,7 +176,7 @@ class Vectorstore(BaseModel, ABC):
 
     .. rubric:: Notes
 
-    Subclasses must implement creation/loading and existence checks, and expose a way to count stored documents/chunks.
+    Subclasses must implement creation/loading and existence checks, and expose args way to count stored documents/chunks.
     """
     config: IndexingConfig #: IndexingConfig :  Index configuration.
     vectorstore: QdrantVectorStore | FAISS | BM25Dict = None #: :langchain:`Qdrant <qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html#langchain_qdrant.qdrant.QdrantVectorStore>` | :langchain:`FAISS <community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html>` : Underlying vector store instance.
@@ -247,7 +248,7 @@ class QdrantVectorstore(Vectorstore):
 
     def load_vectorstore(self, embeddings_model: EmbeddingConfig, retrieval_mode: str) -> QdrantVectorStore:
         """
-        Open the existing Qdrant collection as a LangChain vector store.
+        Open the existing Qdrant collection as args LangChain vector store.
 
         Parameters
         ----------
@@ -321,7 +322,7 @@ class FaissVectorstore(Vectorstore):
 
     def load_vectorstore(self, embeddings_model: EmbeddingConfig, **kwargs) -> FAISS:
         """
-        Load the FAISS index from local files as a LangChain vector store.
+        Load the FAISS index from local files as args LangChain vector store.
 
         Parameters
         ----------
