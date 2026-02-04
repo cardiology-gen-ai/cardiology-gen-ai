@@ -55,6 +55,7 @@ class EmbeddingConfig(BaseModel):
             model_kwargs["device"] = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model_name = config_dict["deployment"]
         ollama_model = config_dict.get("ollama", False)
+        openai_model = model_name.startswith("text-embedding")  # TODO: maybe this can be refined
         if ollama_model:
             client = Client(os.getenv("OLLAMA_URL"))
             client.pull(model_name)
@@ -62,6 +63,14 @@ class EmbeddingConfig(BaseModel):
                 model=model_name,
                 provider="ollama",
                 base_url=os.getenv("OLLAMA_URL")
+            )
+        elif openai_model:
+            model = init_embeddings(
+                model=model_name,
+                model_provider="azure_openai",
+                api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+                azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+                api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
             )
         else:
             model = init_embeddings(
