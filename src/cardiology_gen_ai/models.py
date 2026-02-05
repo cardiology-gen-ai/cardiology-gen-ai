@@ -366,7 +366,7 @@ class BM25Vectorstore(Vectorstore):
     def load_vectorstore(self, **kwargs) -> BM25Dict:
         with open(self.config.folder / (self.config.name + "_bm25.pkl"), "rb") as f:
             vectorstore = pickle.load(f)
-        self.vectorstore = BM25Dict(**vectorstore)
+        self.vectorstore = vectorstore
         return vectorstore
 
     def get_n_documents_in_vectorstore(self) -> int:
