@@ -166,7 +166,7 @@ class IndexingConfig(BaseModel):
 
 class BM25Dict(BaseModel):
     bm25: BM25Plus = None
-    documents: List = None
+    documents: List = []
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
