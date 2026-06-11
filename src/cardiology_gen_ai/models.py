@@ -67,7 +67,7 @@ class EmbeddingConfig(BaseModel):
         elif openai_model:
             model = init_embeddings(
                 model=model_name,
-                model_provider="openai",
+                provider="openai",
                 api_key=os.getenv("OPENAI_API_KEY"),
                 # azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
                 # api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
